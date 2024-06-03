@@ -52,3 +52,6 @@ qtcreator-*
 CATKIN_IGNORE
 
 *.bag
+
+.dockerignore
+.vscode/

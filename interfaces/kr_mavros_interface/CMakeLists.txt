@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 project(kr_mavros_interface)
 
+#two test options 
+option(BUILD_UNIT_TESTS "Build the unit tests" OFF)
+option(BUILD_INTEGRATION_TESTS "Build the integration tests" ON)
+
 # set default build type
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo)
@@ -29,7 +33,7 @@ else()
   include_directories(${catkin_INCLUDE_DIRS} ${mavros_msgs_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR})
 
   catkin_package(
-    INCLUDE_DIRS
+    INCLUDE_DIRS include
     LIBRARIES
     ${PROJECT_NAME}
     CATKIN_DEPENDS
@@ -45,7 +49,6 @@ else()
   add_library(${PROJECT_NAME} src/so3cmd_to_mavros_nodelet.cpp)
   add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
   target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
-
   install(
     TARGETS ${PROJECT_NAME}
     ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
@@ -54,4 +57,28 @@ else()
 
   install(DIRECTORY launch/ DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch)
   install(FILES nodelet_plugin.xml DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+
+  # build tests
+  if(CATKIN_ENABLE_TESTING)
+    find_package(rostest REQUIRED)
+    # find_package(kr_mav_controllers)
+    find_package(GTest REQUIRED)
+    include_directories(
+      include 
+      ${catkin_INCLUDE_DIRS} ${mavros_msgs_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR} ${GTEST_INCLUDE_DIRS})
+    add_executable(so3cmd_to_mavros_nodelet_test test/so3cmd_to_mavros_nodelet_test.cpp)
+    target_link_libraries(so3cmd_to_mavros_nodelet_test ${PROJECT_NAME} ${catkin_LIBRARIES} ${GTEST_LIBRARIES})
+    add_rostest(test/so3cmd_to_mavros_nodelet.test)
+    # add_rostest_gtest(so3cmd_to_mavros_nodelet_test test/so3cmd_to_mavros_nodelet.test test/so3cmd_to_mavros_nodelet_test.cpp)
+
+    # if(BUILD_UNIT_TESTS)
+    #   catkin_add_gtest(unit_tests test/unit_tests.cpp)
+    #   target_link_libraries(unit_tests ${PROJECT_NAME} ${catkin_LIBRARIES})
+    #   endif()
+    # if(BUILD_INTEGRATION_TESTS)
+    #   add_rostest_gtest(integration_tests test/integration_tests.test test/integration_tests.cpp)
+    #   target_link_libraries(integration_tests ${PROJECT_NAME} ${catkin_LIBRARIES})
+    #   endif()
+  endif()
+
 endif()

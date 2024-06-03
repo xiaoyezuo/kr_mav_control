@@ -18,6 +18,10 @@
   <depend>kr_mav_msgs</depend>
   <depend>mavros_msgs</depend>
   <depend>nodelet</depend>
+  <!-- <depend>kr_mav_controllers</depend> -->
+
+  <test_depend>rostest</test_depend>
+  <test_depend>gtest</test_depend>
 
   <export>
     <nodelet plugin="${prefix}/nodelet_plugin.xml"/>
