@@ -39,6 +39,7 @@ class SO3CmdToMavros : public nodelet::Nodelet
 
 void SO3CmdToMavros::odom_callback(const nav_msgs::Odometry::ConstPtr &odom)
 {
+  ROS_INFO_ONCE("Received first odom message from %s", odom_sub_.getTopic().c_str());
   odom_q_ = Eigen::Quaterniond(odom->pose.pose.orientation.w, odom->pose.pose.orientation.x,
                                odom->pose.pose.orientation.y, odom->pose.pose.orientation.z);
   odom_set_ = true;
@@ -52,6 +53,7 @@ void SO3CmdToMavros::odom_callback(const nav_msgs::Odometry::ConstPtr &odom)
 
 void SO3CmdToMavros::imu_callback(const sensor_msgs::Imu::ConstPtr &pose)
 {
+  ROS_INFO_ONCE("Received first imu message from %s", imu_sub_.getTopic().c_str());
   imu_q_ = Eigen::Quaterniond(pose->orientation.w, pose->orientation.x, pose->orientation.y, pose->orientation.z);
   imu_set_ = true;
 
