@@ -1,0 +1,6 @@
+so3cmd_to_crazyflie:
+  ros__parameters:
+    num_props: 4
+    kf: 2.137145e-6
+    lin_cof_a: 0.0015
+    lin_int_b: -1.5334
