@@ -4,7 +4,6 @@
 #include <nav_msgs/Odometry.h>
 #include <ros/ros.h>
 #include <std_msgs/Bool.h>
-#include <vector>
 #include <geometry_msgs/PoseStamped.h>
 #include <mavros_msgs/AttitudeTarget.h>
 #include <nodelet/nodelet.h>
@@ -12,13 +11,17 @@
 #include <std_msgs/Float64.h>
 #include <tf/transform_datatypes.h>
 #include <Eigen/Geometry>
+#include <vector>
 
-// Test class for SO3CmdToMavros nodelet
+/**
+ * @brief Test class for SO3CmdToMavros nodelet
+ */
 class SO3CmdToMavrosTester
 {
  public:
   SO3CmdToMavrosTester();
-  void publish_so3_cmd();
+  void populate_so3cmd_vector();
+  void publish_so3_cmd(int idx);
   void publish_odom_msg();
   void publish_imu_msg();
   void attitude_raw_callback(const mavros_msgs::AttitudeTarget::ConstPtr &msg);
@@ -46,44 +49,60 @@ class SO3CmdToMavrosTester
     ros::Publisher odom_pub_;
     ros::Publisher imu_pub_;
     ros::Subscriber attitude_raw_sub_;
-    ros::Subscriber odom_pose_sub_;  // For sending PoseStamped to firmware
+    ros::Subscriber odom_pose_sub_;  
+    std::vector<kr_mav_msgs::SO3Command> so3_cmd_msgs_;
+    std::vector<nav_msgs::Odometry> odom_msgs_;
+    std::vector<sensor_msgs::Imu> imu_msgs_;
 };
 
-// Initialize the nodelet
+/**
+ * @brief Construct a new SO3CmdToMavrosTester::SO3CmdToMavrosTester object
+ */
 SO3CmdToMavrosTester::SO3CmdToMavrosTester(): nh("")
 {
-  // ros::NodeHandle nh;
   // nh.getParam("kf", kf_);
   // nh.getParam("num_props", num_props_);
   so3_cmd_pub_ = nh.advertise<kr_mav_msgs::SO3Command>("so3_cmd", 5, true);
   odom_pub_ = nh.advertise<nav_msgs::Odometry>("odom", 5, true);
   imu_pub_ = nh.advertise<sensor_msgs::Imu>("mavros/imu/data", 5, true);
-  attitude_raw_sub_ = nh.subscribe("attitude_raw", 5, &SO3CmdToMavrosTester::attitude_raw_callback, this, ros::TransportHints().tcpNoDelay());
+  attitude_raw_sub_ = nh.subscribe("mavros/setpoint_raw/attitude", 5, &SO3CmdToMavrosTester::attitude_raw_callback, this, ros::TransportHints().tcpNoDelay());
   odom_pose_sub_ = nh.subscribe("mavros/vision_pose/pose", 5, &SO3CmdToMavrosTester::odom_callback, this, ros::TransportHints().tcpNoDelay());
 }
 
-// Check if so3cmd publisher is active
+/**
+ * @brief Check if so3_cmd publisher is active
+ * 
+ */
 bool SO3CmdToMavrosTester::is_so3cmd_publisher_active()
 {
   return so3_cmd_pub_.getNumSubscribers() > 0;
 }
 
-//check if imu publisher is active
+/**
+ * @brief Check if imu publisher is active
+ * 
+ */
 bool SO3CmdToMavrosTester::is_imu_publisher_active()
 {
   return imu_pub_.getNumSubscribers() > 0;
 }
 
-// Check if odom publisher is active
+/**
+ * @brief Check if odom publisher is active
+ * 
+ */
 bool SO3CmdToMavrosTester::is_odom_publisher_active()
 {
   return odom_pub_.getNumSubscribers() > 0;
 }
 
-// Publish so3_cmd message
-void SO3CmdToMavrosTester::publish_so3_cmd()
+/**
+ * @brief Populates the so3_cmd_msgs_ vector with SO3Command messages
+ * 
+ */
+void SO3CmdToMavrosTester::populate_so3cmd_vector()
 {
-  ROS_INFO("Publishing SO3 Command message to %s", so3_cmd_pub_.getTopic().c_str());
+  //enable_motors = false
   kr_mav_msgs::SO3Command so3_cmd;
   so3_cmd.header.stamp = ros::Time::now();
   so3_cmd.force.x = 0.0;
@@ -96,14 +115,48 @@ void SO3CmdToMavrosTester::publish_so3_cmd()
   so3_cmd.angular_velocity.x = 0.0;
   so3_cmd.angular_velocity.y = 0.0;
   so3_cmd.angular_velocity.z = 0.0;
+  so3_cmd.aux.enable_motors = false;
   so3_cmd.aux.current_yaw = 0.0;
   so3_cmd.aux.kf_correction = 0.0;
   so3_cmd.aux.angle_corrections[0] = 0.0;
   so3_cmd.aux.angle_corrections[1] = 0.0;
-  so3_cmd_pub_.publish(so3_cmd);
+  so3_cmd_msgs_.push_back(so3_cmd);
+
+  //enable_motors = true
+  so3_cmd.header.stamp = ros::Time::now();
+  so3_cmd.aux.enable_motors = true;
+  so3_cmd_msgs_.push_back(so3_cmd);
+
+  //enable_motors = true, force = 1.0
+  so3_cmd.header.stamp = ros::Time::now();
+  so3_cmd.force.x = 1.0;
+  so3_cmd.force.y = 1.0;
+  so3_cmd.force.z = 1.0;
+  so3_cmd_msgs_.push_back(so3_cmd);
 }
 
-// Publish odom message
+/**
+ * @brief Publish SO3 Command message indexed from so3_cmd_msgs_ vector
+ * 
+ * @param idx index of the SO3 Command message to publish
+ */
+void SO3CmdToMavrosTester::publish_so3_cmd(int idx)
+{
+  ROS_INFO("Publishing SO3 Command message to %s", so3_cmd_pub_.getTopic().c_str());
+  int so3_cmd_vector_size = so3_cmd_msgs_.size();
+  if(idx < so3_cmd_vector_size)
+  {
+    so3_cmd_pub_.publish(so3_cmd_msgs_[idx]);
+  }
+  else
+  {
+    ROS_WARN("Index out of range. Cannot publish SO3 Command message");
+  }
+}
+
+/**
+ * @brief Publish odom message
+ */
 void SO3CmdToMavrosTester::publish_odom_msg()
 {
   ROS_INFO("Publishing Odom message to %s", odom_pub_.getTopic().c_str());
@@ -119,7 +172,9 @@ void SO3CmdToMavrosTester::publish_odom_msg()
   odom_pub_.publish(odom);
 }
 
-// Publish imu message
+/**
+ * @brief Publish IMU message
+ */
 void SO3CmdToMavrosTester::publish_imu_msg()
 {
   ROS_INFO("Publishing IMU message to %s", imu_pub_.getTopic().c_str());
@@ -131,38 +186,29 @@ void SO3CmdToMavrosTester::publish_imu_msg()
   imu_pub_.publish(imu);
 }
 
-// Callback function for attitude_raw subscriber
+/**
+ * @brief Callback function to handle attitude raw messages from nodelet
+ * 
+ * @param msg message received from attitude_raw_sub_
+ */
 void SO3CmdToMavrosTester::attitude_raw_callback(const mavros_msgs::AttitudeTarget::ConstPtr &msg)
 {
   ROS_INFO("Received Attitude Raw message from %s", attitude_raw_sub_.getTopic().c_str());
-  std::lock_guard<std::mutex> lock(mutex);
-  {
-    attitude_raw_msg_received_ = true;
-    if(attitude_raw_msg_received_){
-      attitude_raw_msg_ = *msg;
-    }
-  }
+  attitude_raw_msg_received_ = true;
+  attitude_raw_msg_ = *msg;
 }
 
-// Callback function for odom_pose subscriber
+/**
+ * @brief Callback function to handle odom messages from nodelet
+ * 
+ * @param odom message received from odom_pose_sub_
+ */
 void SO3CmdToMavrosTester::odom_callback(const geometry_msgs::PoseStamped::ConstPtr &odom)
 {
   ROS_INFO("Received Odom message from %s", odom_pose_sub_.getTopic().c_str());
-  std::lock_guard<std::mutex> lock(mutex);
   odom_msg_received_ = true;
   odom_msg_.pose.pose = odom->pose;
 }
-
-// struct Test4Data
-// {
-//   float position_x = 0.0;
-//   float position_y = 0.0;
-//   float position_z = 0.0;
-//   float orientation_w = 1.0;
-//   float orientation_x = 0.0;
-//   float orientation_y = 0.0;
-//   float orientation_z = 0.0;
-// };
 
 
 

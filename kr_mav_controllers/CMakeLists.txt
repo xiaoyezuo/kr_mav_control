@@ -75,7 +75,6 @@ if(CATKIN_ENABLE_TESTING)
   include_directories(${GTEST_INCLUDE_DIRS})
 
   add_executable(so3_control_nodelet_test test/so3_control_nodelet_test.cpp)
-  # add_rostest_gtest(so3_control_nodelet_test test/so3_control_nodelet.test test/so3_control_nodelet_test.cpp)
   target_link_libraries(so3_control_nodelet_test ${catkin_LIBRARIES} ${GTEST_LIBRARIES})
 
   add_rostest(test/so3_control_nodelet.test)

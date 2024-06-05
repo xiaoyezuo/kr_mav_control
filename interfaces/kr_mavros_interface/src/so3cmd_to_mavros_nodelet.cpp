@@ -53,9 +53,9 @@ void SO3CmdToMavros::odom_callback(const nav_msgs::Odometry::ConstPtr &odom)
 
 void SO3CmdToMavros::imu_callback(const sensor_msgs::Imu::ConstPtr &pose)
 {
-  ROS_INFO_ONCE("Received first imu message from %s", imu_sub_.getTopic().c_str());
-  imu_q_ = Eigen::Quaterniond(pose->orientation.w, pose->orientation.x, pose->orientation.y, pose->orientation.z);
+  ROS_INFO("Received first imu message from %s", imu_sub_.getTopic().c_str());
   imu_set_ = true;
+  imu_q_ = Eigen::Quaterniond(pose->orientation.w, pose->orientation.x, pose->orientation.y, pose->orientation.z);
 
   if(so3_cmd_set_ && ((ros::Time::now() - last_so3_cmd_time_).toSec() >= so3_cmd_timeout_))
   {

@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(kr_mavros_interface)
 
-#two test options 
-option(BUILD_UNIT_TESTS "Build the unit tests" OFF)
-option(BUILD_INTEGRATION_TESTS "Build the integration tests" ON)
-
 # set default build type
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo)
@@ -61,7 +57,6 @@ else()
   # build tests
   if(CATKIN_ENABLE_TESTING)
     find_package(rostest REQUIRED)
-    # find_package(kr_mav_controllers)
     find_package(GTest REQUIRED)
     include_directories(
       include 
@@ -71,14 +66,6 @@ else()
     add_rostest(test/so3cmd_to_mavros_nodelet.test)
     # add_rostest_gtest(so3cmd_to_mavros_nodelet_test test/so3cmd_to_mavros_nodelet.test test/so3cmd_to_mavros_nodelet_test.cpp)
 
-    # if(BUILD_UNIT_TESTS)
-    #   catkin_add_gtest(unit_tests test/unit_tests.cpp)
-    #   target_link_libraries(unit_tests ${PROJECT_NAME} ${catkin_LIBRARIES})
-    #   endif()
-    # if(BUILD_INTEGRATION_TESTS)
-    #   add_rostest_gtest(integration_tests test/integration_tests.test test/integration_tests.cpp)
-    #   target_link_libraries(integration_tests ${PROJECT_NAME} ${catkin_LIBRARIES})
-    #   endif()
   endif()
 
 endif()

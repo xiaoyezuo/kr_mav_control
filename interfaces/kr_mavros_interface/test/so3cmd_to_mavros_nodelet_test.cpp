@@ -17,8 +17,8 @@
 #include <kr_mav_msgs/Corrections.h>
 #include "kr_mavros_interface/so3cmd_to_mavros_testor.hpp"
 
-/*
- * @brief Test1: no input baseline test
+/**
+ * @brief Test1: baseline test
  * Expected behavior: attitude_raw_msg_received = false, odom_msg_received = false
  */
 TEST(SO3CmdToMavrosTester, Test1)
@@ -32,7 +32,7 @@ TEST(SO3CmdToMavrosTester, Test1)
   }
 }
 
-/*
+/**
  * @brief Test2: publish odom message and check if it is received
  * Expected behavior: odom_msg_received = true, odom_msg_.pose.pose = odom.pose.pose
  */
@@ -56,23 +56,63 @@ TEST(SO3CmdToMavrosTester, Test2)
   }
 }
 
-/*
- * @brief Test3: publish odom message and imu message and so3 command
+/**
+ * @brief Test3: publish odom message and imu message and so3 command with motor disabled
  * Expected behavior: attitude_raw_msg_received = true, odom_msg_received = true
  */
 TEST(SO3CmdToMavrosTester, Test3)
 {
-  std::cout << "Performing Test3!\n";
+  std::cout << "Performing Test3!\n"; 
   SO3CmdToMavrosTester tester;
+  tester.populate_so3cmd_vector();
   tester.publish_odom_msg();
   tester.publish_imu_msg();
-  tester.publish_so3_cmd();
   ros::Duration(1.0).sleep();
+  tester.publish_so3_cmd(0);
   {
     std::lock_guard<std::mutex> lock(tester.mutex);
     EXPECT_TRUE(tester.is_imu_publisher_active());
     EXPECT_TRUE(tester.is_so3cmd_publisher_active());
-    // EXPECT_TRUE(tester.attitude_raw_msg_received_);
+    ros::Duration(5.0).sleep();
+    EXPECT_TRUE(tester.attitude_raw_msg_received_);
+    EXPECT_EQ(tester.attitude_raw_msg_.orientation.w, 1.0);
+    EXPECT_EQ(tester.attitude_raw_msg_.orientation.x, 0.0);
+    EXPECT_EQ(tester.attitude_raw_msg_.orientation.y, 0.0);
+    EXPECT_EQ(tester.attitude_raw_msg_.orientation.z, 0.0);
+    EXPECT_EQ(tester.attitude_raw_msg_.body_rate.x, 0.0);
+    EXPECT_EQ(tester.attitude_raw_msg_.body_rate.y, 0.0);
+    EXPECT_EQ(tester.attitude_raw_msg_.body_rate.z, 0.0);
+    EXPECT_EQ(tester.attitude_raw_msg_.thrust, 0.0);
+  }
+}
+
+/**
+ * @brief Test4: publish odom message and imu message and so3 command with motor enabled
+ * Expected behavior: attitude_raw_msg_received = true, odom_msg_received = true
+ */
+TEST(SO3CmdToMavrosTester, Test4)
+{
+  std::cout << "Performing Test4!\n"; 
+  SO3CmdToMavrosTester tester;
+  tester.populate_so3cmd_vector();
+  tester.publish_odom_msg();
+  tester.publish_imu_msg();
+  ros::Duration(1.0).sleep();
+  tester.publish_so3_cmd(1);
+  {
+    std::lock_guard<std::mutex> lock(tester.mutex);
+    EXPECT_TRUE(tester.is_imu_publisher_active());
+    EXPECT_TRUE(tester.is_so3cmd_publisher_active());
+    ros::Duration(5.0).sleep();
+    EXPECT_TRUE(tester.attitude_raw_msg_received_);
+    EXPECT_EQ(tester.attitude_raw_msg_.orientation.w, 1.0);
+    EXPECT_EQ(tester.attitude_raw_msg_.orientation.x, 0.0);
+    EXPECT_EQ(tester.attitude_raw_msg_.orientation.y, 0.0);
+    EXPECT_EQ(tester.attitude_raw_msg_.orientation.z, 0.0);
+    EXPECT_EQ(tester.attitude_raw_msg_.body_rate.x, 0.0);
+    EXPECT_EQ(tester.attitude_raw_msg_.body_rate.y, 0.0);
+    EXPECT_EQ(tester.attitude_raw_msg_.body_rate.z, 0.0);
+    EXPECT_NEAR(tester.attitude_raw_msg_.thrust, 0.1, 1e-4);
   }
 }
 
