@@ -39,6 +39,8 @@ class SO3CmdToMavros : public rclcpp::Node
 // Callback function for odometry messages
 void SO3CmdToMavros::odom_callback(const nav_msgs::msg::Odometry::UniquePtr odom)
 {
+
+  std::cout << "odom_callback\n";
   odom_q_ = Eigen::Quaterniond(odom->pose.pose.orientation.w, odom->pose.pose.orientation.x,
                                odom->pose.pose.orientation.y, odom->pose.pose.orientation.z);
   odom_set_ = true;
@@ -53,6 +55,7 @@ void SO3CmdToMavros::odom_callback(const nav_msgs::msg::Odometry::UniquePtr odom
 // Callback function for IMU messages
 void SO3CmdToMavros::imu_callback(const sensor_msgs::msg::Imu::UniquePtr pose)
 {
+  std::cout << "imu_callback\n";
   imu_q_ = Eigen::Quaterniond(pose->orientation.w, pose->orientation.x, pose->orientation.y, pose->orientation.z);
   imu_set_ = true;
 
@@ -181,11 +184,17 @@ SO3CmdToMavros::SO3CmdToMavros(const rclcpp::NodeOptions &options)
     this->get_parameter("num_props", num_props_);
     this->get_parameter("so3_cmd_timeout", so3_cmd_timeout_);
 
-
     // Initialize variables
     odom_set_ = false;
     imu_set_ = false;
     so3_cmd_set_ = false;
+
+    // Print parameters
+    std::cout << "kf: " << kf_ << std::endl;
+    std::cout << "lin_cof_a: " << lin_cof_a_ << std::endl;
+    std::cout << "lin_int_b: " << lin_int_b_ << std::endl;
+    std::cout << "num_props: " << num_props_ << std::endl;
+    std::cout << "so3_cmd_timeout: " << so3_cmd_timeout_ << std::endl;
 
   // Initialize subscribers
   so3_cmd_sub_ = this->create_subscription<kr_mav_msgs::msg::SO3Command>("so3_cmd", 1, std::bind(&SO3CmdToMavros::so3_cmd_callback, this, std::placeholders::_1));
