@@ -38,10 +38,10 @@ def generate_launch_description():
         name="so3cmd_to_mavros",
         parameters=[config_file],
         remappings=[
-          ("~/odom", odom_topic),
-          ("~/so3_cmd", so3_cmd_topic),
-          ("~/imu", "mavros/imu/data"),
-          ("/attitude_raw", "mavros/setpoint_raw/attitude"),
+          ("odom", odom_topic),
+          ("so3_cmd", so3_cmd_topic),
+          ("imu", "mavros/imu/data"),
+          ("attitude_raw", "mavros/setpoint_raw/attitude"),
           ("odom_pose", "mavros/vision_pose/pose")
         ]
       )

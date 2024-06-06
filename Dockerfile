@@ -36,13 +36,15 @@ ENV ROS_DISTRO humble
 # install ros packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-${ROS_DISTRO}-ros-core=0.10.0-1* \
+    ros-${ROS_DISTRO}-tf2* \
+    ros-${ROS_DISTRO}-mavros-msgs \
     && rm -rf /var/lib/apt/lists/*
 
 # instal colcon 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-colcon-common-extensions \
     && rm -rf /var/lib/apt/lists/*
-    
+
 # setup entrypoint
 COPY ./ros_entrypoint.sh /
 RUN chmod +x /ros_entrypoint.sh

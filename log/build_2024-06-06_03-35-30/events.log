@@ -1,0 +1,20 @@
+[0.000000] (-) TimerEvent: {}
+[0.000338] (-) JobUnselected: {'identifier': 'kr_crazyflie_interface'}
+[0.000690] (-) JobUnselected: {'identifier': 'kr_mav_controllers'}
+[0.000889] (-) JobUnselected: {'identifier': 'kr_mav_launch'}
+[0.001210] (-) JobUnselected: {'identifier': 'kr_mav_manager'}
+[0.001390] (-) JobUnselected: {'identifier': 'kr_mav_msgs'}
+[0.001589] (-) JobUnselected: {'identifier': 'kr_mesh_visualization'}
+[0.001832] (-) JobUnselected: {'identifier': 'kr_python_interface'}
+[0.002055] (-) JobUnselected: {'identifier': 'kr_quadrotor_simulator'}
+[0.002349] (-) JobUnselected: {'identifier': 'kr_qualcomm_interface'}
+[0.002508] (-) JobUnselected: {'identifier': 'kr_rosflight_interface'}
+[0.002691] (-) JobUnselected: {'identifier': 'kr_serial_interface'}
+[0.002836] (-) JobUnselected: {'identifier': 'kr_tracker_msgs'}
+[0.003045] (-) JobUnselected: {'identifier': 'kr_trackers'}
+[0.003231] (-) JobUnselected: {'identifier': 'kr_trackers_manager'}
+[0.003395] (-) JobUnselected: {'identifier': 'rqt_mav_manager'}
+[0.003843] (kr_mavros_interface) JobQueued: {'identifier': 'kr_mavros_interface', 'dependencies': OrderedDict([('kr_mav_msgs', '/home/xiaoyez/ros2_ws/src/install/kr_mav_msgs')])}
+[0.003995] (kr_mavros_interface) JobStarted: {'identifier': 'kr_mavros_interface'}
+[0.018189] (kr_mavros_interface) JobEnded: {'identifier': 'kr_mavros_interface', 'rc': 1}
+[0.031964] (-) EventReactorShutdown: {}

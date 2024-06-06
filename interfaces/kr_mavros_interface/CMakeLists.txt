@@ -14,17 +14,18 @@ find_package(sensor_msgs REQUIRED)
 find_package(kr_mav_msgs REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 
-# # If mavros_msgs not found, don't build but do not cause a build error
-# find_package(mavros_msgs)
+# If mavros_msgs not found, don't build but do not cause a build error
+find_package(mavros_msgs)
 
 # if(NOT ${mavros_msgs_FOUND})
 #   message(WARNING "NOTE: mavros_msgs not found so not building kr_mavros_interface")
 # else()
-#   include_directories(${catkin_INCLUDE_DIRS} ${mavros_msgs_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR})
 
 add_library(${PROJECT_NAME} SHARED src/so3cmd_to_mavros_component.cpp)
-ament_target_dependencies(${PROJECT_NAME} rclcpp rclcpp_components kr_mav_msgs nav_msgs sensor_msgs geometry_msgs)
+ament_target_dependencies(${PROJECT_NAME} rclcpp rclcpp_components kr_mav_msgs nav_msgs sensor_msgs geometry_msgs tf2 tf2_geometry_msgs mavros_msgs)
 target_link_libraries(${PROJECT_NAME} Eigen3::Eigen)
 rclcpp_components_register_nodes(${PROJECT_NAME} "SO3CmdToMavros")
 
@@ -41,5 +42,15 @@ install(TARGETS
   RUNTIME DESTINATION bin
 )
 
-ament_export_dependencies(rclcpp rclcpp_components kr_mav_msgs nav_msgs geometry_msgs Eigen3 sensor_msgs)
+# if(BUILD_TESTING)
+#   find_package(ament_cmake_gtest REQUIRED)
+#   ament_add_gtest(${PROJECT_NAME}_test test/so3cmd_to_mavros_test.cpp)
+#   target_include_directories(${PROJECT_NAME}_test PUBLIC
+#     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+#     $<INSTALL_INTERFACE:include>
+#   )
+#   target_link_libraries(${PROJECT_NAME}_test std_msgs rclcpp rclcpp_components kr_mav_msgs nav_msgs sensor_msgs geometry_msgs Eigen3::Eigen tf2 tf2_geometry_msgs mavros_msgs)
+# endif()
+
+ament_export_dependencies(rclcpp rclcpp_components kr_mav_msgs nav_msgs geometry_msgs Eigen3 sensor_msgs tf2 tf2_geometry_msgs mavros_msgs)
 ament_package()

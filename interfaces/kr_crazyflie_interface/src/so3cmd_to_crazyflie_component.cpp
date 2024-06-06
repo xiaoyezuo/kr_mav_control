@@ -80,7 +80,7 @@ void SO3CmdToCrazyflie::so3_cmd_callback(kr_mav_msgs::msg::SO3Command::UniquePtr
     if(motor_status_ < 3)
     {
       auto motors_vel_cmd = std::make_unique<geometry_msgs::msg::Twist>();
-      crazy_cmd_vel_pub_->publish(std::move(motors_vel_cmd));
+      crazy_cmd_vel_pub_->(std::move(motors_vel_cmd));
       last_so3_cmd_ = *msg;
       last_so3_cmd_time_ = msg->header.stamp;
       motor_status_ += 1;
